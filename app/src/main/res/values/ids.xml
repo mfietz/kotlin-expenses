@@ -2,4 +2,5 @@
 <resources>
     <item name="fragment_container" type="id" />
     <item name="add_expense" type="id" />
+    <item name="category_list" type="id" />
 </resources>
