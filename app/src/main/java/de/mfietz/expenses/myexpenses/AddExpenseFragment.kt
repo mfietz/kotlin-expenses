@@ -46,24 +46,29 @@ class AddExpenseFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         val itemId = item?.itemId
-        if(itemId == R.id.action_add_category) {
-            val input = EditText(ctx)
-            input.layoutParams = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.MATCH_PARENT)
-            AlertDialog.Builder(ctx)
-                    .setView(input)
-                    .setPositiveButton(android.R.string.ok, { dialogInterface, id ->
-                        val newCategory = input.text.toString()
-                        categoriesRepositiry.add(newCategory)
-                        categories.add(newCategory)
-                        listAdapter.notifyDataSetChanged()
-                    })
-                    .show()
-            return true;
-
+        when (itemId) {
+            R.id.action_add_category -> {
+                showAddCategoryDialog()
+                return true;
+            }
+            else -> return super.onOptionsItemSelected(item)
         }
-        return super.onOptionsItemSelected(item)
+    }
+
+    private fun showAddCategoryDialog() {
+        val input = EditText(ctx)
+        input.layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT)
+        AlertDialog.Builder(ctx)
+                .setView(input)
+                .setPositiveButton(android.R.string.ok, { dialogInterface, id ->
+                    val newCategory = input.text.toString()
+                    categoriesRepositiry.add(newCategory)
+                    categories.add(newCategory)
+                    listAdapter.notifyDataSetChanged()
+                })
+                .show()
     }
 
     private fun askAmount(category: String) {
