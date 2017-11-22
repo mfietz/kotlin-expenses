@@ -54,15 +54,12 @@ class AddExpenseFragment : Fragment() {
         inflater?.inflate(R.menu.categories_menu, menu)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        val itemId = item?.itemId
-        when (itemId) {
-            R.id.action_add_category -> {
-                showAddCategoryDialog()
-                return true
-            }
-            else -> return super.onOptionsItemSelected(item)
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        R.id.action_add_category -> {
+            showAddCategoryDialog()
+            true
         }
+        else -> super.onOptionsItemSelected(item)
     }
 
     private fun showAddCategoryDialog() {
