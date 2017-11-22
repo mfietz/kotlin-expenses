@@ -18,9 +18,8 @@ import org.jetbrains.anko.support.v4.ctx
 import org.jetbrains.anko.verticalLayout
 import AppDatabase
 import android.arch.persistence.room.Room
-
-
-
+import android.text.Editable
+import android.text.TextWatcher
 
 class AddExpenseFragment : Fragment() {
 
@@ -64,6 +63,7 @@ class AddExpenseFragment : Fragment() {
 
     private fun showAddCategoryDialog() {
         val input = EditText(ctx)
+        input.afterTextChanged { it.replace("[^a-zA-Z]", "") }
         input.layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT)
@@ -94,6 +94,17 @@ class AddExpenseFragment : Fragment() {
 
     private fun finish() {
         activity.supportFragmentManager.popBackStack()
+    }
+
+    fun EditText.afterTextChanged(afterTextChanged: (String) -> Unit) {
+        addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+            override fun afterTextChanged(editable: Editable?) {
+                afterTextChanged.invoke(editable.toString())
+            }
+        })
     }
 
 }
