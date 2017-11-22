@@ -1,4 +1,4 @@
-package de.mfietz.expenses.myexpenses
+package de.mfietz.expenses.myexpenses.persistence
 
 import android.content.Context
 import com.google.gson.Gson

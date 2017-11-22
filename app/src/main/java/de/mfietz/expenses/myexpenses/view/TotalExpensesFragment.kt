@@ -1,5 +1,6 @@
 package de.mfietz.expenses.myexpenses.view
 
+import android.arch.persistence.room.Room
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.Gravity
@@ -7,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import de.mfietz.expenses.myexpenses.ExpensesRepository
 import de.mfietz.expenses.myexpenses.R
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.async
@@ -16,11 +16,15 @@ import org.jetbrains.anko.design.coordinatorLayout
 import org.jetbrains.anko.design.floatingActionButton
 import org.jetbrains.anko.sdk25.coroutines.onClick
 import org.jetbrains.anko.support.v4.UI
-import org.jetbrains.anko.support.v4.ctx
+import AppDatabase
 
 class TotalExpensesFragment : Fragment() {
 
-    val expenseRepository by lazy { ExpensesRepository(ctx) }
+    val expensesDao by lazy {
+        Room.databaseBuilder(activity.applicationContext, AppDatabase::class.java, "my-expenses")
+                .build()
+                .expenseDao()
+    }
     lateinit var tvExpenses: TextView
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? = UI {
@@ -45,7 +49,7 @@ class TotalExpensesFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         async(UI) {
-            val expenses = expenseRepository.getAll()
+            val expenses = expensesDao.getAllExpenses()
             tvExpenses.text = expenses.groupBy { it.category }
                     .mapValues { it.value.sumBy { it.amount } }
                     .map { "• ${it.key}: ${it.value}" }

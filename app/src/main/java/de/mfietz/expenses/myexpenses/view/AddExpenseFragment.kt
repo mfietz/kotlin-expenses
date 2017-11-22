@@ -5,9 +5,8 @@ import android.support.v4.app.Fragment
 import android.support.v7.app.AlertDialog
 import android.view.*
 import android.widget.*
-import de.mfietz.expenses.myexpenses.CategoriesRepository
+import de.mfietz.expenses.myexpenses.persistence.CategoriesRepository
 import de.mfietz.expenses.myexpenses.Expense
-import de.mfietz.expenses.myexpenses.ExpensesRepository
 import de.mfietz.expenses.myexpenses.R
 import org.jetbrains.anko.customView
 import org.jetbrains.anko.editText
@@ -17,11 +16,19 @@ import org.jetbrains.anko.support.v4.UI
 import org.jetbrains.anko.support.v4.alert
 import org.jetbrains.anko.support.v4.ctx
 import org.jetbrains.anko.verticalLayout
+import AppDatabase
+import android.arch.persistence.room.Room
+
+
 
 
 class AddExpenseFragment : Fragment() {
 
-    val expenseRepository by lazy { ExpensesRepository(ctx.applicationContext) }
+    val expensesDao by lazy {
+        Room.databaseBuilder(activity.applicationContext, AppDatabase::class.java, "my-expenses")
+                .build()
+                .expenseDao()
+    }
     val categoriesRepositiry by lazy { CategoriesRepository(ctx.applicationContext) }
     lateinit var categories: MutableList<String>
     lateinit var listAdapter: BaseAdapter
@@ -52,7 +59,7 @@ class AddExpenseFragment : Fragment() {
         when (itemId) {
             R.id.action_add_category -> {
                 showAddCategoryDialog()
-                return true;
+                return true
             }
             else -> return super.onOptionsItemSelected(item)
         }
@@ -81,7 +88,7 @@ class AddExpenseFragment : Fragment() {
                 val amount = editText()
                 positiveButton(android.R.string.ok) {
                     val value = amount.text.toString().toInt()
-                    expenseRepository.add(Expense(category, value))
+                    expensesDao.save(Expense(category, value))
                     finish()
                 }
             }
