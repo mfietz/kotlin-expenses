@@ -1,4 +1,4 @@
-package de.mfietz.expenses.myexpenses
+package de.mfietz.expenses.myexpenses.view
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -7,6 +7,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import de.mfietz.expenses.myexpenses.ExpensesRepository
+import de.mfietz.expenses.myexpenses.R
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.async
 import org.jetbrains.anko.*

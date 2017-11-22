@@ -1,11 +1,14 @@
-package de.mfietz.expenses.myexpenses
+package de.mfietz.expenses.myexpenses.view
 
-import android.content.DialogInterface
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.AlertDialog
 import android.view.*
 import android.widget.*
+import de.mfietz.expenses.myexpenses.CategoriesRepository
+import de.mfietz.expenses.myexpenses.Expense
+import de.mfietz.expenses.myexpenses.ExpensesRepository
+import de.mfietz.expenses.myexpenses.R
 import org.jetbrains.anko.customView
 import org.jetbrains.anko.editText
 import org.jetbrains.anko.listView
