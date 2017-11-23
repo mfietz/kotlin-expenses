@@ -4,10 +4,16 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.AlertDialog
 import android.view.*
-import android.widget.*
-import de.mfietz.expenses.myexpenses.persistence.CategoriesRepository
+import android.widget.ArrayAdapter
+import android.widget.BaseAdapter
+import android.widget.EditText
+import android.widget.LinearLayout
 import de.mfietz.expenses.myexpenses.Expense
 import de.mfietz.expenses.myexpenses.R
+import de.mfietz.expenses.myexpenses.persistence.AppDatabase.Companion.expensesDao
+import de.mfietz.expenses.myexpenses.persistence.CategoriesRepository
+import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.async
 import org.jetbrains.anko.customView
 import org.jetbrains.anko.editText
 import org.jetbrains.anko.listView
@@ -16,18 +22,9 @@ import org.jetbrains.anko.support.v4.UI
 import org.jetbrains.anko.support.v4.alert
 import org.jetbrains.anko.support.v4.ctx
 import org.jetbrains.anko.verticalLayout
-import AppDatabase
-import android.arch.persistence.room.Room
-import android.text.Editable
-import android.text.TextWatcher
 
 class AddExpenseFragment : Fragment() {
 
-    val expensesDao by lazy {
-        Room.databaseBuilder(activity.applicationContext, AppDatabase::class.java, "my-expenses")
-                .build()
-                .expenseDao()
-    }
     val categoriesRepositiry by lazy { CategoriesRepository(ctx.applicationContext) }
     lateinit var categories: MutableList<String>
     lateinit var listAdapter: BaseAdapter
@@ -63,13 +60,12 @@ class AddExpenseFragment : Fragment() {
 
     private fun showAddCategoryDialog() {
         val input = EditText(ctx)
-        input.afterTextChanged { it.replace("[^a-zA-Z]", "") }
         input.layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT)
         AlertDialog.Builder(ctx)
                 .setView(input)
-                .setPositiveButton(android.R.string.ok, { dialogInterface, id ->
+                .setPositiveButton(android.R.string.ok, { _, _ ->
                     val newCategory = input.text.toString()
                     categoriesRepositiry.add(newCategory)
                     categories.add(newCategory)
@@ -85,8 +81,12 @@ class AddExpenseFragment : Fragment() {
                 val amount = editText()
                 positiveButton(android.R.string.ok) {
                     val value = amount.text.toString().toInt()
-                    expensesDao.save(Expense(category, value))
-                    finish()
+                    async(kotlinx.coroutines.experimental.android.UI) {
+                        async(CommonPool) {
+                            expensesDao(ctx).save(Expense(category, value))
+                        }
+                        finish()
+                    }
                 }
             }
         }.show()
@@ -94,17 +94,6 @@ class AddExpenseFragment : Fragment() {
 
     private fun finish() {
         activity.supportFragmentManager.popBackStack()
-    }
-
-    fun EditText.afterTextChanged(afterTextChanged: (String) -> Unit) {
-        addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-
-            override fun afterTextChanged(editable: Editable?) {
-                afterTextChanged.invoke(editable.toString())
-            }
-        })
     }
 
 }

@@ -16,15 +16,13 @@ import org.jetbrains.anko.design.coordinatorLayout
 import org.jetbrains.anko.design.floatingActionButton
 import org.jetbrains.anko.sdk25.coroutines.onClick
 import org.jetbrains.anko.support.v4.UI
-import AppDatabase
+import de.mfietz.expenses.myexpenses.persistence.AppDatabase
+import de.mfietz.expenses.myexpenses.persistence.AppDatabase.Companion.expensesDao
+import kotlinx.coroutines.experimental.CommonPool
+import org.jetbrains.anko.support.v4.ctx
 
 class TotalExpensesFragment : Fragment() {
 
-    val expensesDao by lazy {
-        Room.databaseBuilder(activity.applicationContext, AppDatabase::class.java, "my-expenses")
-                .build()
-                .expenseDao()
-    }
     lateinit var tvExpenses: TextView
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? = UI {
@@ -49,7 +47,7 @@ class TotalExpensesFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         async(UI) {
-            val expenses = expensesDao.getAllExpenses()
+            val expenses = async(CommonPool) { expensesDao(ctx).getAllExpenses() }.await()
             tvExpenses.text = expenses.groupBy { it.category }
                     .mapValues { it.value.sumBy { it.amount } }
                     .map { "• ${it.key}: ${it.value}" }
